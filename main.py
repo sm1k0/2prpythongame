@@ -1,15 +1,10 @@
 import random
 
-
-# Функция для случайного выбора заклинания
 def choose_spell(spells):
     return random.choice(spells)
 
-
-# Список заклинаний
 spell_book = ["Огненный шар", "Ледяная стрела", "Молниеносный удар", "Теневой клинок"]
 
-# Словарь с персонажами и их способностями
 characters = {
     "Юкио": {"способность": "Управление огнем", "защита": 100, "удар": 100},
     "Мария": {"способность": "Контроль над водой", "защита": 100, "удар": 100},
@@ -18,7 +13,6 @@ characters = {
 }
 
 
-# Функция для вывода информации о персонаже и его способности
 def show_character_info(character):
     print(f"Информация о персонаже {character}:")
     print(f"Способность: {characters[character]['способность']}")
@@ -26,7 +20,6 @@ def show_character_info(character):
     print(f"Удар: {characters[character]['удар']}")
 
 
-# Функция для проведения магической битвы
 def magical_battle():
     player_spell = choose_spell(spell_book)
     opponent_spell = choose_spell(spell_book)
@@ -45,7 +38,6 @@ def magical_battle():
         print("Вы проиграли! Заклинание противника оказалось сильнее.")
 
 
-# Функция для выбора действия во время расследования
 def choose_action():
     print("Выберите действие:")
     print("1. Поговорить с персонажем")
@@ -55,8 +47,6 @@ def choose_action():
     choice = input()
     return choice
 
-
-# Функция для диалога с персонажем
 def dialogue():
     dialogs = [
         "Привет! Как дела?",
@@ -69,7 +59,6 @@ def dialogue():
     print(random_dialog)
 
 
-# Функция для поиска алмазов в коридорах
 def explore_corridors():
     print("Вы исследуете темные коридоры...")
     chance = random.randint(1, 100)
@@ -79,7 +68,6 @@ def explore_corridors():
         print("В коридорах ничего нет.")
 
 
-# Главная функция, описывающая ход игры
 def main():
     print("Добро пожаловать в игру 'Битва магов: Заклинания судьбы'!")
     player_name = input("Введите имя своего персонажа: Юкио, Мария, Рю, Кейт ")
