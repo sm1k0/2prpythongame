@@ -1,115 +1,227 @@
-import random
 
-def choose_spell(spells):
-    return random.choice(spells)
+import time
 
-spell_book = ["Огненный шар", "Ледяная стрела", "Молниеносный удар", "Теневой клинок"]
-
-characters = {
-    "Юкио": {"способность": "Управление огнем", "защита": 100, "удар": 100},
-    "Мария": {"способность": "Контроль над водой", "защита": 100, "удар": 100},
-    "Кейт": {"способность": "Манипуляция электричеством", "защита": 100, "удар": 100},
-    "Рю": {"способность": "Иллюзии и телепортация", "защита": 100, "удар": 100}
-}
+import unittest
+from io import StringIO
+from unittest.mock import patch
 
 
-def show_character_info(character):
-    print(f"Информация о персонаже {character}:")
-    print(f"Способность: {characters[character]['способность']}")
-    print(f"Защита: {characters[character]['защита']}")
-    print(f"Удар: {characters[character]['удар']}")
+class TestGame(unittest.TestCase):
+    def setUp(self):
+        self.output = StringIO()
+
+    def tearDown(self):
+        self.output.close()
+
+    def test_print_centered(self):
+        expected_output = "Hello World!\n"
+        with patch('sys.stdout', new=self.output):
+            print_centered("Hello World!")
+        self.assertEqual(self.output.getvalue(), expected_output)
+
+    def test_intro(self):
+        expected_output = "\n╔╗─╔╦═══╦╗──╔╗──╔═══╗╔╗\n║║─║║╔══╣║──║║──║╔═╗║║║\n║╚═╝║╚══╣║──║║──║║─║║║║\n║╔═╗║╔══╣║─╔╣║─╔╣║─║║╚╝\n║║─║║╚══╣╚═╝║╚═╝║╚═╝║╔╗\n╚╝─╚╩═══╩═══╩═══╩═══╝╚╝\n\n"
+        with patch('sys.stdout', new=self.output):
+            intro()
+        self.assertEqual(self.output.getvalue(), expected_output)
+
+    def test_choose_start(self):
+        with patch('builtins.input', return_value='да') as mock_input:
+            with patch('sys.stdout', new=self.output):
+                choose_start()
+        self.assertEqual(mock_input.call_count, 1)
+        self.assertIn("Хотите начать игру? (да/нет): ", self.output.getvalue())
+
+def print_centered(text):
+    for char in text:
+        print(char, end='', flush=True)
+        time.sleep(0.05)
+    print()
 
 
-def magical_battle():
-    player_spell = choose_spell(spell_book)
-    opponent_spell = choose_spell(spell_book)
+def intro():
+    print_centered(f"╔╗─╔╦═══╦╗──╔╗──╔═══╗╔╗")
+    print_centered(f"║║─║║╔══╣║──║║──║╔═╗║║║")
+    print_centered(f"║╚═╝║╚══╣║──║║──║║─║║║║")
+    print_centered(f"║╔═╗║╔══╣║─╔╣║─╔╣║─║║╚╝")
+    print_centered(f"║║─║║╚══╣╚═╝║╚═╝║╚═╝║╔╗")
+    print_centered(f"╚╝─╚╩═══╩═══╩═══╩═══╝╚╝")
+    time.sleep(2)
+    print("\n")
+    print_centered("Вы играете за Джонни Вайсити.")
+    print_centered("Вас вызывают по срочному делу в отделение.")
+    print_centered("С вами прибывает ваш напарник Алекс Путан.")
+    print_centered("Вам дают очень странное дело.")
+    time.sleep(2)
 
-    print(f"Ваш персонаж использует заклинание: {player_spell}")
-    print(f"Противник использует заклинание: {opponent_spell}")
 
-    if player_spell == opponent_spell:
-        print("Ничья! Оба заклинания столкнулись и нейтрализовали друг друга.")
-    elif (player_spell == "Огненный шар" and opponent_spell == "Ледяная стрела") or \
-            (player_spell == "Ледяная стрела" and opponent_spell == "Молниеносный удар") or \
-            (player_spell == "Молниеносный удар" and opponent_spell == "Теневой клинок") or \
-            (player_spell == "Теневой клинок" and opponent_spell == "Огненный шар"):
-        print("Вы победили! Ваше заклинание сильнее противника.")
+def print_title(title):
+    print_centered(f"\n{title}\n")
+
+
+def choose_start():
+    choice = input("Хотите начать игру? (да/нет): ")
+    if choice.lower() == "да":
+        case()
+    elif choice.lower() == "нет":
+        print_centered("Дело отдано другому.")
     else:
-        print("Вы проиграли! Заклинание противника оказалось сильнее.")
+        print_centered("Некорректный выбор.")
 
 
-def choose_action():
-    print("Выберите действие:")
-    print("1. Поговорить с персонажем")
-    print("2. Проверить место пропажи учеников")
-    print("3. Исследовать темные коридоры")
-    print("4. break")
-    choice = input()
-    return choice
-
-def dialogue():
-    dialogs = [
-        "Привет! Как дела?",
-        "Какой прекрасный день сегодня!",
-        "У нас есть важная миссия, будь готов.",
-        "Какую способность ты хочешь развить?",
-        "Не забудь посетить библиотеку, там интересные книги!"
-    ]
-    random_dialog = random.choice(dialogs)
-    print(random_dialog)
-
-
-def explore_corridors():
-    print("Вы исследуете темные коридоры...")
-    chance = random.randint(1, 100)
-    if chance <= 25:
-        print("Вы нашли алмазы! Поздравляю!")
+def case():
+    print_centered("Дело в том, что появился новый маньяк 'Грешник'.")
+    print_centered("Он уже убил более 10 человек.")
+    print_centered("Он выбирает жертву по 7 смертным грехам:")
+    sins = {
+        1: "Похоть",
+        2: "Чревоугодие",
+        3: "Жадность",
+        4: "Лень",
+        5: "Гнев",
+        6: "Зависть",
+        7: "Гордыня"
+    }
+    for num, sin in sins.items():
+        print(f"{num}. {sin}")
+    choice = input("Хотите взяться за дело? (да/нет): ")
+    if choice.lower() == "да":
+        chapter1()
+    elif choice.lower() == "нет":
+        print_centered("Дело отдано другому.")
     else:
-        print("В коридорах ничего нет.")
+        print_centered("Некорректный выбор.")
 
 
-def main():
-    print("Добро пожаловать в игру 'Битва магов: Заклинания судьбы'!")
-    player_name = input("Введите имя своего персонажа: Юкио, Мария, Рю, Кейт ")
-    print(
-        f"{player_name}, вам предстоит познать мир магии и раскрыть загадку, скрывающуюся в Академии Белых Заклинаний.")
-    print("Вы отправляетесь на обучение в школу и сталкиваетесь с первыми вызовами.")
-
-    while True:
-        print("\nГлавное меню:")
-        print("1. Информация о персонаже")
-        print("2. Магическая битва")
-        print("3. Расследование и приключения")
-        print("4. Выход из игры")
+def choose_action(text, options):
+    print(text)
+    for i, option in enumerate(options):
+        print(f"{i + 1}. {option}")
+    choice = input("Выберите действие: ")
+    while not choice.isdigit() or int(choice) < 1 or int(choice) > len(options):
         choice = input("Выберите действие: ")
+    return int(choice)
 
-        if choice == "1":
-            show_character_info(player_name)
-        elif choice == "2":
-            magical_battle()
-        elif choice == "3":
-            print("Вы начинаете расследование и приключения в Академии Белых Заклинаний.")
-            while True:
-                action_choice = choose_action()
-                if action_choice == "1":
-                    print("Вы решаете поговорить с одним из персонажей.")
-                    dialogue()
-                elif action_choice == "2":
-                    print("Вы проверяете место пропажи учеников.")
-                    # Здесь можно добавить расследование и поиск улик
-                elif action_choice == "3":
-                    print("Вы исследуете темные коридоры.")
-                    explore_corridors()
-                elif action_choice == "4":
-                    break
-                else:
-                    print("Выбрано недопустимое действие. Попробуйте снова.")
-        elif choice == "4":
-            print("Спасибо за игру! До новых встреч!")
-            break
+
+# Функция для главы 1
+def chapter1():
+    print_title("Глава 1: В поисках Грешника")
+    choice = choose_action("Вас вызывают на срочное дело в полицейское отделение. Взяться за дело?", ["Да", "Нет"])
+    if choice == 1:
+        print_centered("Вы отправляетесь на место преступления.")
+        choice = choose_action("Осмотреть тело или осмотреть местность?", ["Осмотреть тело", "Осмотреть местность"])
+        if choice == 1:
+            print_centered("Вы замечаете, что это не сам Грешник, а подражатель.")
+            print_centered("Основываясь на порезах и ранах, вы делаете выводы о преступлениях, совершенных в порыве эмоций.")
+            print_centered("Алекс подтверждает ваши догадки.")
+            choice = choose_action('хотите осмотреть местность: ', ["Да", "Нет"])
+            if choice == 1:
+                print_centered("Вы находите следы обуви размера 43 и немного песка на месте трупа.")
+                print_centered("Ваши мысли смешиваются, так как вы лично отправили Уильяма Бейкера за решетку.")
         else:
-            print("Выбрано недопустимое действие. Попробуйте снова.")
+            print_centered("Вы находите следы обуви размера 43 и немного песка на месте трупа.")
+            print_centered("Ваши мысли смешиваются, так как вы лично отправили Уильяма Бейкера за решетку.")
+            choice = choose_action('хотите осмотреть труп: ', ["Да", "Нет"])
+            if choice == 1:
+                print_centered("Вы замечаете, что это не сам Грешник, а подражатель.")
+                print_centered("Основываясь на порезах и ранах, вы делаете выводы о преступлениях, совершенных в порыве эмоций.")
+                print_centered("Алекс подтверждает ваши догадки.")
+            else:
+                pass
+            print_centered("Вы решаете отправиться в полицейский участок.")
+    else:
+        print_centered("Дело отдают другой команде. Игра заканчивается.")
+
+
+# Функция для главы 2
+def chapter2():
+    print_title("Глава 2: Поиски Уильяма Бейкера")
+    print_centered("Джонни приехал домой и обдумывает произошедшее.")
+    choice = choose_action("Куда дальше поехать: Домой или к Алексу?", ["Домой", "К Алексу"])
+    if choice == 1:
+        print_centered("Джонни уходит домой и продолжает думать.")
+        print_centered("Во сне ему снится странный сон, в котором Грешник преследует его в пустыне с лицом Алекса.")
+        choice1 = choose_action("Поехать к Алексу?", ["Да", "Нет"])
+        if choice1 == 1:
+            print_centered("Вы приезжаете к Алексу и начинаете разговор.")
+            print_centered("Алекс говорит про некого Альберта...")
+            print_centered("Алекс уходит домой, а Джонни смотрит на доску подозреваемых и замечает сходство одного из них с неким Альбертом.")
+            choice = choose_action("Поехать к другу Альберта или нет?", ["Да", "Нет"])
+            if choice == 1:
+                print_centered("Вы решаете поехать к другу Альберта независимо от алиби.")
+            else:
+                print_centered("Джонни уходит домой и обдумывает произошедшее.")
+                print_centered("Во сне ему снится странный сон, в котором Грешник преследует его в пустыне с лицом Алекса.")
+
+    else:
+        print_centered("Вы приезжаете к Алексу и начинаете разговор.")
+        print_centered("Алекс говорит про некого Альберта...")
+        print_centered("Алекс уходит домой, а Джонни смотрит на доску подозреваемых и замечает сходство одного из них с неким Альбертом.")
+        choice = choose_action("Поехать к другу Альберта или нет?", ["Да", "Нет"])
+        if choice == 1:
+            print("Вы решаете поехать к другу Альберта независимо от алиби.")
+        else:
+            print("Джонни уходит домой и обдумывает произошедшее.")
+            print("Во сне ему снится странный сон, в котором Грешник преследует его в пустыне с лицом Алекса.")
+
+
+# Функция для главы 3
+def chapter3():
+    print_title("Глава 3: Встреча с другом Альберта")
+    print_centered("Джонни приезжает к другу Альберта и задает ему вопрос про Уильяма.")
+    print_centered("Друг отвечает вопросом на вопрос и замял тему.")
+    print_centered("В ходе разговора вы обнаруживаете, что 43 размер обуви сильно распорот.")
+    choice = choose_action("Задать Алексу вопрос или нет?", ["Да", "Нет"])
+    if choice == 1:
+        print_centered("Алекс отвечает, что он пытается понять, как мыслит Грешник и кто будет следующей жертвой.")
+        print_centered("Вы замечаете, что каждый раз, когда появляется главный подозреваемый, его убивает Грешник.")
+        print_centered("Вы понимаете, что Альберт - следующая цель.")
+    print_centered("Вы отправляетесь в полицейский участок, чтобы узнать адрес его проживания.")
+
+
+def chapter4():
+    print_title("Глава 4: Разоблачение и финал")
+    print_centered("Джонни и Алекс приезжают на место и обнаруживают мертвого Альберта и кучу песка.")
+    print_centered("По всей видимости, это был Уильям.")
+    print_centered("Выясняется, что Альберт - судья, принимающий взятки.")
+    print_centered("При осмотре местности Джонни обнаруживает ткань, похожую на ту, которую носит Алекс.")
+    choice = choose_action("Спросить Алекса или предложить поехать в участок?",
+                           ["Спросить Алекса", "Поехать в участок"])
+    if choice == 1:
+        print_centered("Алекс понимает, что Джонни догадался, и убивает его.")
+        print_centered("Игра заканчивается.")
+    else:
+        print_centered("Джонни и Алекс скрывно сдают ткань на анализ.")
+        print_centered("Анализ показывает, что это ткань Алекса.")
+        print_centered("Джонни спрашивает у Алекса, что он хотел от этого.")
+        print_centered("Алекс в злости отвечает, что ему надоело быть в тени Джонни.")
+        print_centered("Джонни расстроен, что лишился своего напарника.")
+        print_centered("Вы решаете либо закрыть дело и дать Уильяму шанс, либо незамедлительно звонить в полицию.")
+        choice = choose_action("Закрыть дело или звонить в полицию?", ["Закрыть дело", "Звонить в полицию"])
+        if choice == 1:
+            print_centered("Уильям признается, что он решил сам навестить Джонни по старой дружбе.")
+            print_centered("Он говорит, что ему не нравится быть пешкой и выполнять грязную работу.")
+            print_centered("Он предлагает закрыть его дело взамен на небольшую информацию, которая поможет.")
+            print_centered("Вы соглашаетесь и Уильям говорит, что разгадка под носом и кусок ткани докажут это.")
+            print_centered("Игра заканчивается.")
+        else:
+            print_centered("Вы незамедлительно звоните в полицию.")
+            print_centered("Уильям уже не сопротивляется и задерживается.")
+            print_centered("Алекс также задерживается.")
+            print_centered("Джонни расстроен, но чувствует облегчение, что правосудие восторжествовало.")
+            print_centered("Игра заканчивается.")
+
+
+# Основной игровой цикл
+def main():
+    intro()
+    case()
+    chapter1()
+    chapter2()
+    chapter3()
+    chapter4()
 
 
 # Запуск игры
-main()
+if __name__ == "__main__":
+    main()
