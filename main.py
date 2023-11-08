@@ -1,6 +1,6 @@
-
+import csv
 import time
-
+import json
 import unittest
 from io import StringIO
 from unittest.mock import patch
@@ -31,6 +31,57 @@ class TestGame(unittest.TestCase):
                 choose_start()
         self.assertEqual(mock_input.call_count, 1)
         self.assertIn("Хотите начать игру? (да/нет): ", self.output.getvalue())
+def save_to_json(data, filename):
+    with open(filename, 'w') as file:
+        json.dump(data, file)
+
+def save_game_to_json(chapter_number, chapter_data):
+    user_input = input("Введите данные для сохранения в формате JSON: ")
+    data = {"chapter": chapter_number, "data": chapter_data, "user_input": user_input}
+    save_to_json(data, "save.json")
+
+def load_from_json(filename):
+    with open(filename, 'r') as file:
+        data = json.load(file)
+        return data
+
+def load_game_from_json():
+    filename = input("Введите имя файла для загрузки сохраненной игры: ")
+    try:
+        data = load_from_json(filename)
+        chapter_number = data["chapter"]
+        chapter_data = data["data"]
+        user_input = data["user_input"]
+        print(f"Загружена глава {chapter_number}")
+    except FileNotFoundError:
+        print("Файл не найден.")
+
+# Функция для сохранения в CSV
+def save_to_csv(data, filename):
+    with open(filename, 'w', newline='') as csvfile:
+        fieldnames = ['chapter', 'data']  # Наименования колонок
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+        writer.writeheader()
+        for chapter, chapter_data in data.items():
+            writer.writerow({'chapter': chapter, 'data': chapter_data})
+
+def save_game_to_csv(chapter_number, chapter_data):
+    # Сохраняем текущую главу в CSV-файл
+    data = {chapter_number: chapter_data}
+    save_to_csv(data, 'save.csv')
+
+def load_from_csv(filename):
+    with open(filename, 'r', newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        data = {row['chapter']: row['data'] for row in reader}
+        return data
+
+def load_game_from_csv():
+    try:
+        data = load_from_csv('save.csv')
+    except FileNotFoundError:
+        print("Файл сохранения не найден.")
 
 def print_centered(text):
     for char in text:
@@ -38,7 +89,13 @@ def print_centered(text):
         time.sleep(0.05)
     print()
 
+def write_to_csv(data):
+    with open('data.csv', 'w', newline='') as file:
+        writer = csv.writer(file)
 
+        writer.writerow([data])
+        for row in data:
+            writer.writerow(row)
 def intro():
     print_centered(f"╔╗─╔╦═══╦╗──╔╗──╔═══╗╔╗")
     print_centered(f"║║─║║╔══╣║──║║──║╔═╗║║║")
@@ -86,7 +143,7 @@ def case():
         print(f"{num}. {sin}")
     choice = input("Хотите взяться за дело? (да/нет): ")
     if choice.lower() == "да":
-        chapter1()
+        pass
     elif choice.lower() == "нет":
         print_centered("Дело отдано другому.")
     else:
@@ -131,7 +188,10 @@ def chapter1():
             print_centered("Вы решаете отправиться в полицейский участок.")
     else:
         print_centered("Дело отдают другой команде. Игра заканчивается.")
-
+    choice = input("Желаете сохранить игру? (да/нет): ")
+    if choice.lower() == "да":
+        save_game_to_json(1, "данные главы 1")
+        save_game_to_csv(1, "данные главы 1")
 
 # Функция для главы 2
 def chapter2():
@@ -163,6 +223,10 @@ def chapter2():
         else:
             print("Джонни уходит домой и обдумывает произошедшее.")
             print("Во сне ему снится странный сон, в котором Грешник преследует его в пустыне с лицом Алекса.")
+    choice = input("Желаете сохранить игру? (да/нет): ")
+    if choice.lower() == "да":
+        save_game_to_json(2, "данные главы 2")
+        save_game_to_csv(2, "данные главы 2")
 
 
 # Функция для главы 3
@@ -177,6 +241,10 @@ def chapter3():
         print_centered("Вы замечаете, что каждый раз, когда появляется главный подозреваемый, его убивает Грешник.")
         print_centered("Вы понимаете, что Альберт - следующая цель.")
     print_centered("Вы отправляетесь в полицейский участок, чтобы узнать адрес его проживания.")
+    choice = input("Желаете сохранить игру? (да/нет): ")
+    if choice.lower() == "да":
+        save_game_to_json(3, "данные главы 3")
+        save_game_to_csv(3, "данные главы 3")
 
 
 def chapter4():
@@ -211,16 +279,35 @@ def chapter4():
             print_centered("Джонни расстроен, но чувствует облегчение, что правосудие восторжествовало.")
             print_centered("Игра заканчивается.")
 
-
+    choice = input("Желаете сохранить игру? (да/нет): ")
+    if choice.lower() == "да":
+        save_game_to_json(4, "данные главы 4")
+        save_game_to_csv(4, "данные главы 4")
 # Основной игровой цикл
 def main():
     intro()
-    case()
-    chapter1()
-    chapter2()
-    chapter3()
-    chapter4()
+    choice = input("Хотите начать новую игру или загрузить сохраненную? (новая/загрузить): ")
+    if choice.lower() == "новая":
+        case()
+        chapter1()
+        chapter2()
+        chapter3()
+        chapter4()
+    elif choice.lower() == "загрузить":
+        choice = input("Как вы хотите загрузить сохраненную игру? (json/csv): ")
+        if choice.lower() == "json":
+            load_game_from_json()
+        elif choice.lower() == "csv":
+            load_game_from_csv()
+        else:
+            print("Некорректный выбор формата.")
+    else:
+        print("Некорректный выбор.")
 
+    choice = input("Хотите сохранить игру перед выходом? (да/нет): ")
+    if choice.lower() == "да":
+        save_game_to_json(5, "финальные данные")
+        save_game_to_csv(5, "финальные данные")
 
 # Запуск игры
 if __name__ == "__main__":
